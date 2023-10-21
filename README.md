@@ -20,7 +20,7 @@ Finally, I could turn on my dumb lamp with my hella rad switch, from the other s
 
 Eventually the API server made it into a Docker container, and grew a bunch of orthogonal features, like powering a button-activated bedside clock and a momentary push-button switch  bedroom lamp and some smart speaker integrations to play custom chimes at important points throughout the day.
 
-In October 2023, I installed [Kubernetes](http://kubernetes.io) on the low power PC and refactored my single-container Python app called `homeslice` into Go microservices managed by [Pulumi](https://www.pulumi.com). Here's how that went!
+In October 2023, I installed [Kubernetes](http://kubernetes.io) on the low power PC and refactored my single-container Python app [homeslice](https://github.com/mikepartelow/homeslice) into Go microservices managed by [Pulumi](https://www.pulumi.com). Here's how that went!
 
 ## Installing Kubernetes
 
@@ -32,7 +32,7 @@ microk8s documentation is geared toward local development, but I wanted to devel
 
 microk8s ships with a container registry plugin. You can push your containers to the registry at its default port `32000`, and refer to them in your k8s config as `localhost:32000/image-name`. Since I'm developing and building on my laptop, pushing to `localhost` isn't going to work.
 
-I added an entry for `registry.localdomain` to my laptop's `/etc/hosts`, resolving to my microk8s host. 
+I added an entry for `registry.localdomain` to both my laptop's `/etc/hosts` and the same file on each (one) of the nodes in my Kubernetes cluster, resolving to my microk8s host. 
 
 I added the following to my laptop's docker config:
 
@@ -42,7 +42,7 @@ I added the following to my laptop's docker config:
   ]
 ```
 
-Then I followed [these instructions](https://microk8s.io/docs/registry-private) to get microk8s pulling from its own registry, but named as `registry.localdomain`.
+Then I followed [these instructions](https://microk8s.io/docs/registry-private) to get microk8s pulling from its own registry, using the name `registry.localdomain`.
 
 Now I can tag my images on my laptop, push them to my microk8s registry, and refer to them in Pulumi by the same tag I used to push.
 
