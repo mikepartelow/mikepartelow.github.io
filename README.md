@@ -76,7 +76,9 @@ By "all the logic" I mean figuring out what time it is in my timezone and return
 
 `/api/v0/clocktime` checks the hosts's current time, converts it to my timezone, and returns `%H%M` as `Content-Type: text/plain`. The IoT clock displays what the endpoint returns. Simple! 
 
-I could move to a different continent and not need to update my IoT clock's code. I could move to [Pluto](https://science.nasa.gov/dwarf-planets/pluto/facts/) and as long as my API server could find an NTP server, my IoT clock wouldn't need an update. Perfect.
+I could move to a different continent and not need to update my IoT clock's code. I could move to [Jupiter](https://spaceplace.nasa.gov/days/en/) and as long as my API server could find an NTP server, my IoT clock wouldn't need an update. Perfect.
+
+I'd need some updates to get things working on Venus, my clock's display isn't wide enough for that many digits. Something to keep in mind.
 
 ### Buttons
 
