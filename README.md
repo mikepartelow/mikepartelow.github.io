@@ -74,7 +74,7 @@ I built a few custom smart clocks around the house so I wouldn't have to change 
 
 By "all the logic" I mean figuring out what time it is in my timezone and returning that from an API. 
 
-`/api/v0/clocktime` checks the hosts's current time, converts it to my timezone, and returns `Content-Type: plain/text` as `%H%M`. The IoT clock displays what the endpoint returns. Simple!
+`/api/v0/clocktime` checks the hosts's current time, converts it to my timezone, and returns `%H%M` as `Content-Type: text/plain`. The IoT clock displays what the endpoint returns. Simple!
 
 ### Buttons
 
