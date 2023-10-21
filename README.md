@@ -102,7 +102,7 @@ To minimize complexity on my button-activated smart clock, I added an `/api/v0/b
 
 Mmm, build systems. I wanted to focus on Kubernetes for this project so I stuck with what I know, which unfortunately is `make`. I wanted to be able to run `make` from 3 places: the top level of my project, within each microservice directory, and inside the locally running containers. Why that last one?
 
-My laptop is Apple Silicon, and my Kubernetes cluster (ha ha) is Intel, so the containers I push to my registry are built for Intel, which is relatively slow to build on Apple Silicon. For local debugging it's convenient to build native containers, and build my Go code inside them.
+My laptop is Apple Silicon, and my Kubernetes cluster (ha ha) is Intel, so the containers I push to my registry are built for Intel, which is relatively slow to build on Apple Silicon. For local debugging it's convenient to build native containers, and build my Go code inside them to keep a tight dev loop.
 
 I know what you're thinking: I should deploy a CI/CD system to my Kubernetes cluster and build my native containers there. I like the way you think, friend.
 
