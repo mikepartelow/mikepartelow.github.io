@@ -124,7 +124,7 @@ Unexpectedly, my lightswitch now behaves almost like a real lightswitch, with a 
 
 That's right, I optimized my lightswitch by porting it to Kubernetes. It's a little sad, and a little dangerous/thrilling: now the room gets dark before I have time to leave. It's a big change to my lifestyle.
 
-Installing microk8s was incredibly easy. You could even say it was a `snap`, I know I sure said that. A lot.
+Installing microk8s was incredibly easy. You could even say it was a [snap](https://microk8s.io/docs/getting-started), I know I sure said that. A lot.
 
 Kubernetes is an amazing platform for deploying applications, even trivial ones in a home setting. I can use the same `homeslice` repo to deploy my app to AWS or to a RaspberryPi. 
 
