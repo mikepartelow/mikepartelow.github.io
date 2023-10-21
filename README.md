@@ -60,19 +60,25 @@ My smart buttons and switches aren't much fun to program. Maybe the IoT build ec
 
 ### Switches
 
+**FIXME: link to code**
+
 Originally I used the wonderfully named [ouimeaux](https://github.com/iancmcc/ouimeaux) to communicate with my Wemo brand smart switches. During this project, I discovered ouimeaux had been abandoned and replaced by a [simple Python script](https://github.com/iancmcc/ouimeaux/blob/develop/client.py). 
 
 I don't need device discovery, I already know my device's IP addresses. The on/off/toggle logic is trivial, and who wants unnecessary Python dependencies in their Go project? I ported the bits I needed to Go. 
 
 ### Clocktime
 
-I built a few custom smart clocks around the house so I wouldn't have to change the time for DST. Because I don't find programming IoT devices much fun, I made them as trivial as possible and put all the logic on the server side. 
+**FIXME: link to code**
+
+I built a few custom smart clocks around the house so I wouldn't have to change the time for [DST](https://www.wired.com/story/2023-daylight-saving-time/). It's easier to make changes to my APIs than to my IoT devices, so I keep my IoT code as simple as possible, implementing all the logic on the server side. 
 
 By "all the logic" I mean figuring out what time it is in my timezone and returning that from an API. 
 
 `/api/v0/clocktime` checks the hosts's current time, converts it to my timezone, and returns `Content-Type: plain/text` as `%H%M`. The IoT clock displays what the endpoint returns. Simple!
 
 ### Buttons
+
+**FIXME: link to code**
 
 I have various IoT smart buttons around the house. When pressed, they report their state to my API, which can then be queried by other interested devices at `/api/v0/buttons`. The old `homeslice` recorded state in an Sqlite database. 
 
@@ -82,9 +88,13 @@ The poor UX of the buttons has always been a major part of their charm, the exci
 
 #### Buttontimes
 
+**FIXME: link to code**
+
 To minimize complexity on my button-activated smart clock, I added an `/api/v0/buttontimes` endpoint that reports the state of a button and the current time in one API call. The buttons microservice calls out to the `clocktime` endpoint to fetch the current time.
 
 ## Make
+
+**FIXME: link to code**
 
 Mmm, build systems. I wanted to focus on Kubernetes for this project so I stuck with what I know, which unfortunately is `make`. I wanted to be able to run `make` from 3 places: the top level of my project, within each microservice directory, and inside the locally running containers. Why that last one?
 
@@ -92,9 +102,13 @@ My laptop is Apple Silicon, and my Kubernetes cluster (ha ha) is Intel, so the c
 
 ## Pulumi
 
+**FIXME: link to code**
+
 I used Pulumi to manage deploying my application. It's great. 
 
 I don't want to publish my IP addresses to Github, and managing my deployments in Pulumi makes that very easy.
+
+**FIXME: more talk about the interesting bits**
 
 ## The Bottom Line
 
