@@ -112,7 +112,11 @@ I know what you're thinking: I should deploy a CI/CD system to my Kubernetes clu
 
 I used Pulumi to manage deploying my application. It's great. 
 
-I don't want to publish my IP addresses to Github, and managing my deployments in Pulumi makes that very easy.
+I don't want to publish my IP addresses to Github, and managing my deployments in Pulumi makes that very easy. 
+
+You can get fancy and refactor/reuse your code, like I did, and even unit test it, which I didn't do. 
+
+It's so straightforward that I don't have much to say about it! 
 
 # The Bottom Line
 
