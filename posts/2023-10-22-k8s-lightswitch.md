@@ -62,7 +62,7 @@ My smart buttons and switches aren't much fun to program. Maybe the IoT build ec
 
 ## Switches
 
-[https://github.com/mikepartelow/homeslice/tree/main/apps/switches](source code)
+[source code](https://github.com/mikepartelow/homeslice/tree/main/apps/switches)
 
 Originally I used the wonderfully named [ouimeaux](https://github.com/iancmcc/ouimeaux) to communicate with my Wemo brand smart switches. During this project, I discovered ouimeaux had been abandoned and replaced by a [simple Python script](https://github.com/iancmcc/ouimeaux/blob/develop/client.py). 
 
@@ -70,7 +70,7 @@ I don't need device discovery, I already know my device's IP addresses. The on/o
 
 ## Clocktime
 
-[https://github.com/mikepartelow/homeslice/tree/main/apps/clocktime](source code)
+[source code](https://github.com/mikepartelow/homeslice/tree/main/apps/clocktime)
 
 I built a few custom smart clocks around the home so I wouldn't have to change the time for [DST](https://www.wired.com/story/2023-daylight-saving-time/). It's easier to make changes to my APIs than to my IoT devices, so I keep my IoT code as simple as possible, implementing all the logic on the server side. 
 
@@ -84,7 +84,7 @@ I'd need some updates to get things working on Venus, my clock's display isn't w
 
 ## Buttons
 
-[https://github.com/mikepartelow/homeslice/tree/main/apps/buttons](source code)
+[source code](https://github.com/mikepartelow/homeslice/tree/main/apps/buttons)
 
 I have various IoT smart buttons around the home. When pressed, they report their state to my API, which can then be queried by other interested devices at `/api/v0/buttons`. The old [homeslice](https://github.com/mikepartelow/homeslice) recorded state in an Sqlite database. 
 
@@ -98,7 +98,7 @@ To minimize complexity on my button-activated smart clock, I added an `/api/v0/b
 
 # Make
 
-[https://github.com/mikepartelow/homeslice/tree/main/apps/Makefile](source code)
+[source code](https://github.com/mikepartelow/homeslice/tree/main/apps/Makefile)
 
 Mmm, build systems. I wanted to focus on Kubernetes for this project so I stuck with what I know, which unfortunately is `make`. I wanted to be able to run `make` from 3 places: the top level of my project, within each microservice directory, and inside the locally running containers. Why that last one?
 
