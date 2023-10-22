@@ -108,7 +108,7 @@ I know what you're thinking: I should deploy a CI/CD system to my Kubernetes clu
 
 # Pulumi
 
-[https://github.com/mikepartelow/homeslice/tree/main/pulumi](source code)
+[source code](https://github.com/mikepartelow/homeslice/tree/main/pulumi)
 
 I used Pulumi to manage deploying my application. It's great. 
 
