@@ -1,14 +1,18 @@
+---
+layout: default
+---
+
 # My lightswitch was slow so I ported it to Kubernetes
 
 **2023/10/22**
 
 I've got a boring old dumb-lamp that isn't anywhere near a switched outlet. 
 
-![Dumb-Lamp Off](../img/k8s-lamp-off.jpeg)
+![Dumb-Lamp Off](/assets/img/k8s-lamp-off.jpeg)
 
  I've also got a hella rad light switch on the other side of the room.
  
-![hella rad light switch](../img/k8s-switch.jpeg). 
+![hella rad light switch](/assets/img/k8s-switch.jpeg). 
  
  Wouldn't it be great if I could use the switch to turn on the light?
 
@@ -122,7 +126,7 @@ It's so straightforward that I don't have much to say about it!
 
 At the end of it all, what did I accomplish? 
 
-![Dumb-Lamp On](../img/k8s-lamp-on.jpeg)
+![Dumb-Lamp On](/assets/img/k8s-lamp-on.jpeg)
 
 Unexpectedly, my lightswitch now behaves almost like a real lightswitch, with a near instantaneous activation time. 
 
