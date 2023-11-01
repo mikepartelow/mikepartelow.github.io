@@ -1,6 +1,7 @@
 ---
 layout: default
 title: "2023/10/22: My lightswitch was slow so I ported it to Kubernetes"
+permalink: posts/2023-10-22-k8s-lightswitch.html
 ---
 
 # My lightswitch was slow so I ported it to Kubernetes
