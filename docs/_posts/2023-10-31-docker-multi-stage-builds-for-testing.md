@@ -1,5 +1,6 @@
 ---
 layout: default
+title: "2023/10/31: Docker multi-stage builds for testing"
 ---
 
 # Docker multi-stage builds for testing
@@ -10,7 +11,8 @@ layout: default
 
 Docker's [multi-stage builds](https://docs.docker.com/build/guide/multi-stage/) are a powerful tool for producing smaller images, faster. We can also use multi-stage Docker builds to test our images.
 
-Sometimes, we aren't building an application, but an image to be the basis of downstream applications - for example, a development environment. In this case, we can't simply copy a single application executable and test it, we want to test the image itself.
+Sometimes, we aren't building an application, but an image to be the basis of downstream applications - for example, a development environment. In this case, we can't simply copy a single application executable and test it, our system under test is the image itself.
+
 
 ```Dockerfile
 # The image we build
@@ -30,9 +32,9 @@ RUN /app/downstream_app /config_files
 
 How do we test that our `foundation` image maintains its contract to downstream users? 
 
-We could write a test that inspects our image and validates our contracts. 
+We could write a test that inspects our image and validates our contracts. That could be awkward, since our existing testing framework, if we have one, is probably geared toward testing application or library code, not Docker images.
 
-We could also use multi-stage builds to run our tests during the *build* phase, failing the build if our tests fail.
+We can multi-stage builds to run our tests during the *build* phase, failing the build if our tests fail.
 
 ```Dockerfile
 # The image we want to release after testing
@@ -54,7 +56,7 @@ COPY --from=test /tmp/result.txt /dev/null
 
 We can build this image by targeting the final build stage.
 
-A failing build (with a confusing error message).
+A failing build:
 
 ```bash
 % echo "exit 1" > test.sh
@@ -123,6 +125,43 @@ ERROR: failed to solve: process "/bin/sh -c (/bin/sh test.sh && echo \"pass\" > 
 ```
 
 Is that better? Well, it does say `Tests Failed`.
+
+## Parallel tests
+
+Docker runs the non-dependent stages of a multi-stage build [in parallel](https://docs.docker.com/build/guide/multi-stage/). Once the stages our tests depend on have built, the tests can run in parallel.
+
+```Dockerfile
+# The image we want to release after testing
+FROM debian AS foundation_candidate
+COPY . /config_files
+
+# Our tests
+FROM foundation_candidate AS test1
+COPY test1.sh /test1.sh
+# Write /tmp/results1.txt only if test passes
+RUN /bin/sh test1.sh && echo "pass" > /tmp/result1.txt
+
+FROM foundation_candidate AS test2
+COPY test2.sh /test2.sh
+# Write /tmp/results2.txt only if test passes
+RUN /bin/sh test2.sh && echo "pass" > /tmp/result2.txt
+
+# The stage we will actually release
+FROM foundation_candidate AS foundation
+# This will cause the `test1` and `test2` stages to build. 
+# If either of those stages fail to write /tmp/resultN.txt,
+# the relevant `COPY` will fail, and our Docker build will fail.
+COPY --from=test1 /tmp/result1.txt /dev/null
+COPY --from=test2 /tmp/result2.txt /dev/null
+```
+
+Run it as before, notice that test2 doesn't wait for test1 to finish.
+
+```bash
+% echo "sleep 2 && exit 0" > test1.sh
+% echo "exit 0" > test2.sh
+% docker build -t foundation --target foundation .
+```
 
 ## Alternatives
 
