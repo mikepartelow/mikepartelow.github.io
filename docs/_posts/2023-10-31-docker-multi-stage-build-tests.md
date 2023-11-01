@@ -10,7 +10,7 @@ layout: default
 
 Docker's [multi-stage builds](https://docs.docker.com/build/guide/multi-stage/) are a powerful tool for producing smaller images, faster. We can also use multi-stage Docker builds to test our images.
 
-Sometimes, we aren't building an application, but an image to be the basis of downstream applications.
+Sometimes, we aren't building an application, but an image to be the basis of downstream applications - for example, a development environment. In this case, we can't simply copy a single application executable and test it, we want to test the image itself.
 
 ```Dockerfile
 # The image we build
@@ -30,7 +30,7 @@ RUN /app/downstream_app /config_files
 
 How do we test that our `foundation` image maintains its contract to downstream users? 
 
-We could write a test that inspects our image, by running it or other means, and validates our contracts.
+We could write a test that inspects our image and validates our contracts. 
 
 We could also use multi-stage builds to run our tests during the *build* phase, failing the build if our tests fail.
 
