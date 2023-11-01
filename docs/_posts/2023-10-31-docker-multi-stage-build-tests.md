@@ -147,6 +147,6 @@ More people can read Dockerfiles than can understand our CI system, and those pe
 
 ## The Bottom Line
 
-CI pipelines typically have a `testing` phase. If our build artifact doesn't fit well into our testing paradigm, we may end up writing a byzantine, unreadable test just to "fit in" with a testing framework not designed for our artifact type. Or we may end up with no tests at all.
+CI pipelines typically have a `testing` phase. If our build artifact doesn't fit well into our testing paradigm, we may end up writing a complex test just to "fit in" with a testing framework not designed for our artifact type. Or we may end up with no tests at all.
 
 In those cases, we can leverage Docker's powerful biult-in features to deliver tested artifacts to our customers.
