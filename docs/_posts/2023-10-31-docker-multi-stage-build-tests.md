@@ -12,14 +12,14 @@ Docker's [multi-stage builds](https://docs.docker.com/build/guide/multi-stage/) 
 
 Sometimes, we aren't building an application, but an image to be the basis of downstream applications.
 
-```docker
+```Dockerfile
 # The image we build
 FROM debian AS foundation
-# Our downstream users will read this file
+# Our downstream users will read /config_files
 COPY . /config_files
 ```
 
-```docker
+```Dockerfile
 # Downstream app using our image
 FROM foundation AS app
 COPY . /app
@@ -34,7 +34,7 @@ We could write a test that inspects our image, by running it or other means, and
 
 We could also use multi-stage builds to run our tests during the *build* phase, failing the build if our tests fail.
 
-```docker
+```Dockerfile
 # The image we want to release after testing
 FROM debian AS foundation_candidate
 COPY . /config_files
@@ -56,7 +56,7 @@ We can build this image by targeting the final build stage.
 
 A failing build (with a confusing error message).
 
-```console
+```bash
 % echo "exit 1" > test.sh
 % docker build -t foundation --target foundation .
  => ERROR [test 2/2] RUN /bin/sh test.sh && echo "pass"                                                                                                                                                         0.1s
@@ -76,14 +76,14 @@ ERROR: failed to solve: process "/bin/sh -c /bin/sh test.sh && echo \"pass\"" di
 
 A passing build!
 
-```console
+```bash
 % echo "exit 0" > test.sh
 % docker build -t foundation --target foundation .
 ```
 
 The final image doesn't contain the tests, but it does contain a `5 byte` layer from copying the test results to `/dev/null`.
 
-```console
+```bash
 % docker history foundation
 IMAGE          CREATED              CREATED BY                                      SIZE      COMMENT
 2ca32e95dd61   About a minute ago   COPY /tmp/result.txt /dev/null # buildkit       5B        buildkit.dockerfile.v0
@@ -103,7 +103,7 @@ RUN (/bin/sh test.sh && echo "pass" > /tmp/result.txt) || (echo "Tests Failed" ;
 
 Now fail a test.
 
-```console
+```bash
 % echo "exit 1" > test.sh
 % docker build -t foundation --target foundation .
 => ERROR [test 2/2] RUN (/bin/sh test.sh && echo "pass" > /tmp/result.txt) || (echo "Tests Failed" ; exit 42)                                                                                                  0.1s
@@ -142,9 +142,11 @@ More people can read Dockerfiles than can understand our CI system, and those pe
 ## Disadvantages
 
 - Extra 5 bytes per test in our final image.
-- Our tests run in our build phase, which can be confusing especially in a CI pipeline.
+- Our tests run in our build phase, which can be confusing, especially in a CI pipeline.
 - Totally custom. Any test output is unlikely to be easily parsed by standard tools.
 
 ## The Bottom Line
 
-CI pipelines typically have a `testing` phase. If our build artifact doesn't fit well into our testing paradigm, intentionally breaking the build remains a better option than having no tests at all, or writing a byzantine, unreadable test just to "fit in" with a testing framework not designed for our artifact type.
+CI pipelines typically have a `testing` phase. If our build artifact doesn't fit well into our testing paradigm, we may end up writing a byzantine, unreadable test just to "fit in" with a testing framework not designed for our artifact type. Or we may end up with no tests at all.
+
+In those cases, we can leverage Docker's powerful biult-in features to deliver tested artifacts to our customers.
