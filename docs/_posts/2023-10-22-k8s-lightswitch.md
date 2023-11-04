@@ -5,9 +5,6 @@ permalink: posts/2023-10-22-k8s-lightswitch.html
 date: "2023/10/22"
 ---
 
-**{{ page.date | date: "%Y/%m/%d" }}** 
-{: .right}
-
 I've got a boring old dumb-lamp that isn't anywhere near a switched outlet. 
 
 ![Dumb-Lamp Off](/assets/img/k8s-lamp-off.jpeg)

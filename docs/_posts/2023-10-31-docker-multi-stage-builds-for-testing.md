@@ -4,9 +4,6 @@ title: "Docker multi-stage builds for testing"
 date: "2023/10/31"
 ---
 
-**{{ page.date | date: "%Y/%m/%d" }}**
-{: .right}
-
 ## Why?
 
 Docker's [multi-stage builds](https://docs.docker.com/build/guide/multi-stage/) are a powerful tool for producing smaller images, faster. We can also use multi-stage Docker builds to test our images.
