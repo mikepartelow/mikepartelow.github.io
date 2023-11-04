@@ -1,11 +1,11 @@
 ---
 layout: default
-title: "2023/10/31: Docker multi-stage builds for testing"
+title: "Docker multi-stage builds for testing"
+date: "2023/10/31"
 ---
 
-# Docker multi-stage builds for testing
-
-**2023/10/31**
+**{{ page.date | date: "%Y/%m/%d" }}**
+{: .right}
 
 ## Why?
 
