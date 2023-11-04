@@ -1,12 +1,9 @@
 ---
 layout: default
-title: "2023/10/22: My lightswitch was slow so I ported it to Kubernetes"
+title: "My lightswitch was slow so I ported it to Kubernetes"
 permalink: posts/2023-10-22-k8s-lightswitch.html
+date: "2023/10/22"
 ---
-
-# My lightswitch was slow so I ported it to Kubernetes
-
-**2023/10/22**
 
 I've got a boring old dumb-lamp that isn't anywhere near a switched outlet. 
 

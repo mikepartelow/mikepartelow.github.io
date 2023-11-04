@@ -18,8 +18,9 @@ email: bloggingascode@mikepartelow.com
 description: >- # this means to ignore newlines until "baseurl:"
   Not really a tech blog, not really not a tech blog.
 baseurl: "" # the subpath of your site, e.g. /blog
-url: "" # the base hostname & protocol for your site, e.g. http://example.com
+url: "https://mikepartelow.github.io" # the base hostname & protocol for your site, e.g. http://example.com
 github_username:  mikepartelow
+github_repo_url: "https://github.com/mikepartelow"
 
 # Build settings
 markdown: kramdown
