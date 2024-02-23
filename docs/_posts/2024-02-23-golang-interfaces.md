@@ -38,7 +38,7 @@ func AirTrafficControl(f Flyer) {
 }
 ```
 
-Now you have to implement `GoAround()` on `type UnladenAfricanSwallow`, which makes no sense.
+Now you have to implement `GoAround()` on `UnladenAfricanSwallow`, which makes no sense.
 
 What if your V/STOL ground-attack aircraft needs some Air Traffic Control?
 
@@ -50,7 +50,7 @@ Oh no! The Hawker Siddley Harrier can't glide. This interface makes no sense.
 
 ### Bottom Up
 
-Things often turn out better if we start with a bottom-up approach and define interfaces on the **caller-side** in terms of what the caller requires from its arguments.  
+Things often turn out better if we start with a bottom-up approach and define interfaces in terms of what interface consumers require.
 
 In this case, `AirTrafficController` requires a `GoAround()` method - and that's it. Anything that can perform a `GoAround()` will do, we don't care if it can `Glide()` (or even if it can [Land()](https://www.cntraveller.com/article/flying-hotel)).
 
@@ -69,6 +69,8 @@ type HawkerSiddeleyHarrier struct {} // implements TakeOff, Land(), and GoAround
 ```
 
 Now we don't have to add methods that don't make sense on `UnladenAfricanSwallow` and `HawkerSiddeleyHarrier`, and the type checker will prevent us from doing nonsensical stuff like passing an `UnladenAfricanSwallow` to `AirTrafficController`.
+
+`AirTrafficController` doesn't need the full `Flyer` interface, it only calls `GoAround()`. Maybe nobody needs the full `Flyer` interface!
 
 ### Testing
 
@@ -94,7 +96,7 @@ We don't have to implement `TakeOff` etc. on `mockGoArounder`. The test file is 
 
 If we're using [TDD](https://quii.gitbook.io/learn-go-with-tests/) we can write our test and implement only what's needed for it to pass - we focus on what we're testing/implementing right now (`AirTrafficController`), not what we might need someday (`Land()`, `Glide()`, etc).
 
-### The mindeset
+### The mindset
 
 When you're writing your code, if you think "I sure wish I could call obj.Foo() right here to get the behavior I need", that's when you define the new `Fooer` interface! 
 
