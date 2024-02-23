@@ -1,10 +1,10 @@
 ---
 layout: default
-title: "Go Interfaces"
+title: "Write Small Interfaces"
 date: "2024/02/23"
 ---
 
-## Interfaces
+## Write Small Interfaces
 
 ### Top Down
 
