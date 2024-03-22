@@ -236,6 +236,8 @@ There exist a variety of tools to help with analyses like this. But writing our 
 
 We could expand this code in a number of directions, including adding more callbacks to our trace, adding `for` loops to compute means and medians, lists of different urls to fetch, [concurrent](https://go.dev/tour/concurrency/11) requests, HTTP header injection, and so on. 
 
+Since it's a tiny Go program without dependencies, it's easily shipped to a friend who can double check our findings and review our methodology, and we can use it to validate that changes to our network do not impact quality of service.  
+
 Also, it's fun!
 
 ---
