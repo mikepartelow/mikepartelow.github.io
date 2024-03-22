@@ -6,15 +6,15 @@ date: "2024/03/21"
 
 ## What?
 
-Go's standard library includes [net/http/trace](https://pkg.go.dev/net/http/httptrace), for registering callbacks that are invoked at certain points during the HTTP request lifecycle, and the [net/http.RoundTripper](https://pkg.go.dev/net/http#RoundTripper) `interface`, which can be used to interact with HTTP [Requests](https://pkg.go.dev/net/http#Request) and [Responses](https://pkg.go.dev/net/http#Response), even ones for Request/Response cycles initiated outside your own code.
+Go's standard library includes [net/http/trace](https://pkg.go.dev/net/http/httptrace), for registering callbacks that are invoked at certain points during the HTTP request lifecycle, and the [net/http.RoundTripper](https://pkg.go.dev/net/http#RoundTripper) `interface`, which can be used to interact with HTTP [Requests](https://pkg.go.dev/net/http#Request) and [Responses](https://pkg.go.dev/net/http#Response), even ones for Request/Response cycles initiated outside our own code.
 
 ## Why?
 
-You can use these tools to debug when your HTTP client code is slow or misbehaving. You can also use it to gain insight into networking protocols and properties. But mostly: because it's cool.
+We can use these tools to debug when our HTTP client code is slow or misbehaving. We can also use it to gain insight into networking protocols and properties. But mostly: because it's cool.
 
 ## Example
 
-You've noticed[^1] that loading `http://google.com` seems a bit slow. Why might that be?
+We've noticed[^1] that loading `http://google.com` seems a bit slow. Why might that be?
 
 Let's find out by writing some code.
 
