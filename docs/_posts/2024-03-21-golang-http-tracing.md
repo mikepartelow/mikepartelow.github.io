@@ -210,7 +210,7 @@ len(body)= 18436
 HTTP GET  http://google.com/  took  125.791458ms
 ```
 
-Aha! Google issues an [HTTP 301 Redirect](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/301), and Go's [http.Client](https://pkg.go.dev/net/http#Client) follows Redirects by default. So we are actually making two, HTTP requests, not one. That explains the two calls to our `GotFirstResponseByte` callback.
+Aha! Google issues an [HTTP 301 Redirect](https://developer.mozilla.org/en-US/docs/Web/HTTP/Status/301), and Go's [http.Client](https://pkg.go.dev/net/http#Client) follows Redirects by default. So we are actually making two HTTP requests, not one. That explains the two calls to our `GotFirstResponseByte` callback.
 
 Now, with deeper understanding, we can optimize things a little.
 
@@ -228,7 +228,7 @@ len(body)= 18406
 HTTP GET  http://www.google.com/  took  72.230834ms
 ```
 
-Wow! A perfect [42](https://en.wikipedia.org/wiki/42_(number)#:~:text=The%20number%2042%20is%2C%20in,period%20of%207.5%20million%20years.)% improvement. Profound!
+Wow! A perfect 42% improvement. [Profound]((https://en.wikipedia.org/wiki/42_(number)#:~:text=The%20number%2042%20is%2C%20in,period%20of%207.5%20million%20years.)!
 
 ## What was all that about?
 
