@@ -6,13 +6,6 @@ date: "2024/03/31"
 
 ## What?
 
-
-FIXMEs
-
-FIXME: code to github
-
-
-
 I read the book [Cloud Native Go](https://learning.oreilly.com/library/view/cloud-native-go/9781492076322/).  The "extra credit" assignments were fun and interesting, and the opportunities to practice[^practice] writing code were endless. 
 
 The final chapter on Observability and [OpenTelemetry](https://opentelemetry.io) is the subject of this post. In the brief time since the publishing of the book, OpenTelemetry has come a long way, and the examples needed some work to compile. Of all the things I learned in the book, the final chapter may be the one that most immediately applicable for me.
@@ -49,7 +42,7 @@ if err != nil {
 }
 ```
 
-Many of these checks in a row become hard to read. We can simplify this using Go's [generics](FIXME: link).
+Many of these checks in a row become hard to read. We can simplify this using Go's [generics](https://go.dev/doc/tutorial/generics).
 
 ```golang
 func check[T any](thing T, err error) T {
@@ -342,5 +335,3 @@ Other profiling tools exist for this kind of work, but traces did the job too, a
 [^power]: Or knowing a bit about fibonacci implementations.
 [^performance]: Still nowhere close to the iterative implementation.
 [^problem]: The book's implementation doesn't work for n = 0. Opinions differ on whether 0 is a Fibonacci number. My opinion is: yes, it is.
-
-FIXME: ^ is that true and mathematically relevant?
