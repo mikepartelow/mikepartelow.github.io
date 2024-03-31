@@ -334,4 +334,4 @@ Other profiling tools exist for this kind of work, but traces did the job too, a
 [^practice]: Makes Perfect.
 [^power]: Or knowing a bit about fibonacci implementations.
 [^performance]: Still nowhere close to the iterative implementation.
-[^problem]: The book's implementation doesn't work for n = 0. Opinions differ on whether 0 is a Fibonacci number. My opinion is: yes, it is.
+[^problem]: The book's implementation doesn't work for n = 0. [Opinions differ](https://math.stackexchange.com/questions/158699/why-does-the-fibonacci-series-start-with-0-1) on whether 0 is a Fibonacci number. My opinion is: yes, it is.
