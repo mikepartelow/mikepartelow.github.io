@@ -13,17 +13,17 @@ FIXME: code to github
 
 
 
-I read the book [Cloud Native Go](FIXME).  The "extra credit" assignments were fun and interesting, and the opportunities to practice[^1] writing code were endless. 
+I read the book [Cloud Native Go](https://learning.oreilly.com/library/view/cloud-native-go/9781492076322/).  The "extra credit" assignments were fun and interesting, and the opportunities to practice[^practice] writing code were endless. 
 
-The final chapter on Observability and [OpenTelemetry](FIXME) is the subject of this post. In the brief time since the publishing of the book, OpenTelemetry has come a long way, and the examples needed some work to compile. Of all the things I learned in the book, the final chapter may be the one that most immediately applicable for me.
+The final chapter on Observability and [OpenTelemetry](https://opentelemetry.io) is the subject of this post. In the brief time since the publishing of the book, OpenTelemetry has come a long way, and the examples needed some work to compile. Of all the things I learned in the book, the final chapter may be the one that most immediately applicable for me.
 
-Source code for this post can be found [here](FIXME).
+Source code for this post can be found [here](https://github.com/mikepartelow/cngfib).
 
 ## Why?
 
 "Learn by doing" is my motto. I didn't invent it, but I learned it... *by doing*.
 
-I learn best by actually writing code, especially code that answers the questions that arise while reading about code. I wondered how the book's `channels` and `goroutines` implementation would perform compared to some more traditional implementations. Go's builtin [benchmarking](FIXME: link to stdlib) tools make it easy to answer such questions, and its builtin [testing framework](FIXME: link to stdlib) revealed a bug in the book's implemetation[^4].
+I learn best by actually writing code, especially code that answers the questions that arise while reading about code. I wondered how the book's `channels` and `goroutines` implementation would perform compared to some more traditional implementations. Go's builtin [benchmarking](https://pkg.go.dev/testing#hdr-Benchmarks) tools make it easy to answer such questions, and its builtin [testing framework](https://pkg.go.dev/testing) revealed a bug in the book's implemetation[^problem].
 
 ```bash
 % go test -bench .
@@ -38,7 +38,7 @@ PASS
 ok  	mp/fib/pkg/fib	5.177s
 ```
 
-Unsurprisingly, the iterative Fibonacci implementation is faster than the recursive one, and the memoized recursive one is faster than the plain recursive one. But I didn't expect the book's `channels` and `goroutines` implementation to be so much worse than using recursion!
+Unsurprisingly, the iterative Fibonacci implementation is faster than the recursive one, and the memoized recursive one is faster than the plain recursive one. But I didn't expect the book's `channels` and `goroutines` implementation to be so much slower than using recursion!
 
 Every time I write a little toy application, I pick up another cool trick or two, and roll it in to my standard toolkit. Particularly in throwaway code, we often write this:
 
@@ -60,15 +60,15 @@ func check[T any](thing T, err error) T {
 }
 
 func main() {
-	thing := check(some.Func("something"))
+	thing := check(some.Func("something")) // we weren't doing real error checking anyways
 }
 ```
 
 ## Let's instrument Fibonacci
 
-We'll start with some code, but the real payoff comes from running [Jaeger](FIXME). 
+We'll start with some code, but the real payoff comes from running [Jaeger](https://www.jaegertracing.io). 
 
-First, of course, we'll write a test. I've omitted some imports for simplicity here. Full code is [here](FIXME: link).
+First, of course, we'll write a test. I've omitted some imports for simplicity here. Full code is [here](https://github.com/mikepartelow/cngfib/blob/main/pkg/fib/fib_test.go#L20).
 
 ```golang
 package fib_test
@@ -97,7 +97,7 @@ We'll implement recusive Fibonacci first. It won't win any efficiency contests, 
 ```golang
 package fib
 
-func Recurse(num int) (int) {
+func Recurse(num uint) (uint) {
 	if num <= 1 {
 		return num
 	}
@@ -119,7 +119,7 @@ const (
 	instrumentationVersion = "0.1.0"
 )
 
-func Recurse(ctx context.Context, num int, memos ...Memo) (result int) {
+func Recurse(ctx context.Context, num uint, memos ...Memo) (result uint) {
 	tracer := otel.Tracer(instrumentationName,
 		trace.WithInstrumentationVersion(instrumentationVersion),
 		trace.WithSchemaURL(semconv.SchemaURL),
@@ -216,13 +216,16 @@ func main() {
 }
 ```
 
-Running [this code](FIXME: link to code) should print `55` to `stdout`. Also, it should send traces to our `Jaeger` instance. We can navigate our browser to `http://localhost:16686` to see the `Jaeger` UI. We should see a `fibonnaci` service, with a fresh trace named `fibonnaci:main`.
+Running this code prints `55` to `stdout`. Also, it sends traces to our `Jaeger` instance. We can navigate our browser to `http://localhost:16686` to see the `Jaeger` UI. We should see a `fibonnaci` service, with a fresh trace named `fibonnaci:main`.
 
-[[ jaeger.0.png ]]
+![jaeger](/assets/img/jaeger.0.png) 
 
-Looking at the `spans`[^2], it's apparent that we repeat a lot of calls. `Recursive Fibonacci(3)` appears three times in this screenshot - the actual total is more than 3. We have 178 `spans` in all. Can we improve our implementation?  
 
-We can use [memoization](FIXME) to optimize, and we can use our traces to observe that the implementation is an improvement.
+Looking at the `spans`[^power], it's apparent that we repeat a lot of calls. `Recursive Fibonacci(2)` appears three times in this screenshot - the actual total is more than 3. We have 178 `spans` in all. Can we improve our implementation?  
+
+![jaeger](/assets/img/jaeger.1.png) 
+
+We can use [memoization](https://en.wikipedia.org/wiki/Memoization) to optimize, and we can use our traces to observe that the implementation is an improvement.
 
 ```golang
 package fib
@@ -325,7 +328,7 @@ PASS
 ok  	mp/fib/pkg/fib	5.177s
 ```
 
-The memoization improved our benchmark by 3 orders of magnitude!^[3] And we can demonstrate the performance differences with no external dependencies, only Go's standard library, which means it's simple to include benchmarks in our CI pipeline, run them in our development environment, and ask our colleagues to gather benchmarks for us on their machines.
+The memoization improved our benchmark by 3 orders of magnitude![^performance] And we can demonstrate the performance differences with no external dependencies, only Go's standard library, which means it's simple to include benchmarks in our CI pipeline, run them in our development environment, and ask our colleagues to gather benchmarks for us on their machines.
 
 ## What was all that about?
 
@@ -335,9 +338,9 @@ Other profiling tools exist for this kind of work, but traces did the job too, a
 
 ---
 
-[^1]: Makes Perfect.
-[^2]: Or knowing a bit about fibonacci implementations.
-[^3]: Still nowhere close to the iterative implementation.
-[^4]: The book's implementation doesn't work for n = 0.
+[^practice]: Makes Perfect.
+[^power]: Or knowing a bit about fibonacci implementations.
+[^performance]: Still nowhere close to the iterative implementation.
+[^problem]: The book's implementation doesn't work for n = 0. Opinions differ on whether 0 is a Fibonacci number. My opinion is: yes, it is.
 
 FIXME: ^ is that true and mathematically relevant?
