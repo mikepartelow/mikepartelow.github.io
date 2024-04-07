@@ -12,7 +12,7 @@ We can [export traces](https://docs.docker.com/build/building/opentelemetry/) fr
 
 ## So?
 
-We can use traces to discover optimization opportunities in our builds and to debug performance degrades. 
+We can use traces to discover optimization opportunities in our builds and to debug performance degrades.
 
 This can be particularly helpful for a DevOps team responsible for an organization's container builds, when alerts or users report that "builds are slow".
 
@@ -41,7 +41,7 @@ bootstrap:
   		--driver-opt "env.JAEGER_TRACE=localhost:6831"
 	docker buildx inspect --bootstrap
 
-build: 
+build:
 	docker buildx build -o type=docker -f Dockerfile -t otel-docker .
 
 traces:
@@ -86,19 +86,19 @@ RUN echo "spam" > /tmp/spam
 
 If you're on Mac, `make traces` opened Jaeger in your browser. Otherwise, navigate to `http://localhost:16686`. Select the `buildx` Service, and look at the `buildx: build` trace. Here's some of what I see:
 
-![jaeger](/assets/img/docker-otel-jaeger.0.png) 
+![jaeger](/assets/img/docker-otel-jaeger.0.png)
 
-Right away we can see that `RUN apt update -y && apt install -y emacs` accounts for the majority of our build time. We can now decide what we want to do about it. We could combine that line with the previous line, or we could find a smaller distribution of `emacs`, or - well, the possibilities are almost endless. 
+Right away we can see that `RUN apt update -y && apt install -y emacs` accounts for the majority of our build time. We can now decide what we want to do about it. We could combine that line with the previous line, or we could find a smaller distribution of `emacs`, or - well, the possibilities are almost endless.
 
 ## What was all that about?
 
 This is a trivial, contrived example with a boring Dockerfile and a single trace. In fact, the `docker` CLI already prints layer timing to `stdout`. You didn't need distributed tracing to figure out why this build was slow.
 
-But imagine you're doing thousands of image builds a day, and need to dig into performance issues. Historical traces can help you determine when things got slow (maybe you don't have dedicated build metrics), then correlate with changes to your Dockerfiles, source code, build environment, and dependendcy chains. It's much easier to look at a list of traces than to dig through build logs, which probably contain lots of other information (AKA "noise"), and may not be easily accessible in aggregate.
+But imagine you're doing thousands of image builds a day, and need to dig into performance issues. Historical traces can help you determine when things got slow (maybe you don't have dedicated build metrics), then correlate with changes to your Dockerfiles, source code, build environment, and dependency chains. It's much easier to look at a list of traces than to dig through build logs, which probably contain lots of other information (AKA "noise"), and may not be easily accessible in aggregate.
 
 Maybe when you look at your traces, you discover that all your Dockerfile's commands run quickly, but pushing to your registry is regrettably slow.
 
-Or maybe you're just a developer who wants a robust historical log of your Dockerfile improvements over time. 
+Or maybe you're just a developer who wants a robust historical log of your Dockerfile improvements over time.
 
 The possibilities are endless, and the traces are very easy to set up!
 
