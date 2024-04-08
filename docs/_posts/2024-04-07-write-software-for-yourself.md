@@ -26,4 +26,4 @@ And I have custom reference Python code for dealing with Git repos (useful!) and
 
 ---
 
-[^for-example]: For example, if Tidal decides my playlist is their property and locks me out of the unofficial API.
+[^for-example]: For example, if Tidal decides my playlist is their property and makes it impossible for me to obtain a copy.
