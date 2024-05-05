@@ -20,7 +20,7 @@ Shunryu Suzuki: *Each of you is perfect the way you are ... and you can use a li
 
 Richard Thaler: *A good rule of thumb is to assume that everything matters.*
 
-When everything matters, you need to take everything into account to make optimal decisions. That's a lot of cognitive load. Squeezing a little improvement out of perfection requires reducing the scope of "everything" - replacing complexity with simplicity.
+When everything matters, you need to take everything into account to make optimal decisions. That's a lot of cognitive load. When squeezing a little improvement out of perfection, it can help to reduce the scope of "everything" by replacing complexity with simplicity.
 
 ## Great, I'm already perfect, now I want to improve my software
 
@@ -28,6 +28,6 @@ Neither Suzuki nor Thaler said: *There are two ways of constructing a software d
 
 That was the inventor of Quicksort, [Tony Hoare](https://en.wikipedia.org/wiki/Tony_Hoare).
 
-Software is better overall when it's simpler. Software that doesn't exist at all has no maintenance cost and no bugs.
+Software is better overall when it's simpler. Software that is simple can be understood by more people. Software that doesn't exist at all has no maintenance cost and no bugs.
 
 If your practice is complexity, it may be ridiculous.
