@@ -14,7 +14,7 @@ Sometimes the most impactful improvement you can make is to *stop doing somethin
 
 This same sentiment goes by the name *sunk cost fallacy*, but I find Shunryu Suzuki more fun to read than Richard Thaler.
 
-## Serious advice
+## Serious advice?
 
 Shunryu Suzuki: *Each of you is perfect the way you are ... and you can use a little improvement.*
 
