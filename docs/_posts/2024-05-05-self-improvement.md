@@ -20,7 +20,7 @@ Shunryu Suzuki: *Each of you is perfect the way you are ... and you can use a li
 
 Richard Thaler: *A good rule of thumb is to assume that everything matters.*
 
-When everything matters, you need to take everything into account to make optimal decisions. That's a lot of cognitive load. When squeezing a little improvement out of perfection, it can help to reduce the scope of "everything" by replacing complexity with simplicity.
+When everything matters, you need to take everything into account to make optimal decisions. That's a lot of cognitive load. To squeeze a little improvement out of perfection, it can help to reduce the scope of what matters - to constrain "everything".
 
 ## Great, I'm already perfect, now I want to improve my software
 
