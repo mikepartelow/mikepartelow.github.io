@@ -12,7 +12,7 @@ Sometimes the most impactful improvement you can make is to *stop doing somethin
 
 [In context](https://hakone-zendo.org/2024/01/28/zen-and-excitement/), that's not exactly what Suzuki meant, but also in content, it's precisely what he meant.
 
-This same sentiment goes by the name *sunk cost fallacy*, but I find Shunryu Suzuki more fun to read than Richard Thaler.
+Richard Thaler coined the term *sunk cost fallacy* for the idea that because you've put a lot of work into something, you should keep doing it. That's one thing that makes it hard to stop a ridiculous practice that's making you worse.
 
 ## Serious advice?
 
@@ -31,3 +31,23 @@ That was the inventor of Quicksort, [Tony Hoare](https://en.wikipedia.org/wiki/T
 Software is better overall when it's simpler. Software that is simple can be understood by more people. Software that doesn't exist at all has no maintenance cost and no bugs.
 
 If your practice is complexity, it may be ridiculous.
+
+## Simplicity takes work
+
+> Je n’ai fait celle-ci plus longue que parce que je n’ai pas eu le loisir de la faire plus courte. - Blaise Pascal, 1657
+>
+> ("I have made this [letter] longer than usual because I have not had time to make it shorter.")
+
+It's easier to throw every thought into your text than to edit it down to something punchy (ask me how I know!). Centuries ago, Blaise Pascal knew that concision takes work. 
+
+Whether you're writing prose or code - or working on "self improvement" - putting in the work to produce a simpler outcome often pays off in the form of a *better* outcome.
+
+## Simplicity isn't always more *fun*
+
+> If we're lucky, someone has already done this and we'll use their code. If *I* am lucky, nobody has done it and I get to write the code! - Me, last week
+
+Often the simplest thing to do is to use an existing solution, even if it's not perfect. If you like writing software as much as I do, it's tempting to write code - particularly if the code is simple - but code you write is code you and/or your team must maintain. 
+
+Even if the code itself is simple, its build infrastructure has to be maintained, and documentation, and so on.
+
+Sometimes that's less simple than pulling down updates to someone else's code.
