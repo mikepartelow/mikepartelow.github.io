@@ -51,3 +51,11 @@ Often the simplest thing to do is to use an existing solution, even if it's not 
 Even if the code itself is simple, its build infrastructure has to be maintained, and documentation, and so on.
 
 Sometimes that's less simple than pulling down updates to someone else's code.
+
+## Simplicity can be in the eye of the beholder
+
+> The marble not yet carved can hold the form of every thought the greatest artist has. - Michelangelo (Not the Ninja Turtle)
+
+Expression can be a subtractive process. Michelangelo famously conceptualized his work as removing the marble that naturally encased the statue he wanted the world to see.
+
+Michelangelo's *David* has less mass than the block of marble that originally contained it. Is it simpler, or not, than the original chunk of unworked marble?
