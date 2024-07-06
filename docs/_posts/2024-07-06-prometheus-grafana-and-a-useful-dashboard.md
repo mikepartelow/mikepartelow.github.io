@@ -44,6 +44,12 @@ I used Pulumi's handy [guide](https://www.pulumi.com/registry/packages/kubernete
 
 It worked out well!
 
+### Pinning
+
+I pinned both Helm charts to [specific](https://github.com/mikepartelow/homeslice/blob/5f30888a2ff898a5ad43a425208bb2c715777ef9/pulumi/Pulumi.prod.yaml#L41) [versions](https://github.com/mikepartelow/homeslice/blob/5f30888a2ff898a5ad43a425208bb2c715777ef9/pulumi/Pulumi.prod.yaml#L43).
+
+I don't want accidental upgrades of these charts the next time I `pulumi up` after refactoring unrelated parts of my IaC. Outside of my homelab, I'd also pin all the images used by the Helm chart, for the same reason. Nothing stops me from going back and doing that later, here. 
+
 ### Challenges
 
 #### Ingress confguration
@@ -87,3 +93,25 @@ Once I'd gotten the Helm charts configured, deployment was as simple as `pulumi 
 Likewise, `http://my-homelab/grafana` renders friendly old Grafana, hooked up to my Prometheus instance and all the mertics exported by `kube-state-metrics` and `node-exporters` - all without me instrumenting any of my application code.
 
 Time to build a dashboard!
+
+## A Useful Dashboard
+
+I want to know if my Cronjobs failed, and I don't want to instrument my code to publish those signals. Fortunately for me, `kube-state-metrics`, bundled in the Prometheus Helm chart, gives me what I need. It's not exactly straightforward to get an answer to the seemingly simple question "is my Cronjob healthy?", but it's possible. With working PromQL in hand, a nice dashboard is simple.
+
+### The PromQL Query
+
+> Source: [https://devops.stackexchange.com/a/15057](https://devops.stackexchange.com/a/15057)
+
+```promql
+time() - max(kube_job_status_succeeded{namespace=\"homeslice\",job_name=~\"$cronjob.*\"} * on (job_name) kube_job_created{namespace=\"homeslice\",job_name=~\"$cronjob.*\"})
+```
+
+Cronjob names are parameterized as `$cronjob` so that I can use one query for all the Cronjobs in my `homeslice` namespace. We take the current time, and subtract from it the time of the most recent successful job (which, as I said before, is not exactly straightforward to identify). That gives us the time since the last successful run.
+
+It just so happens that all of my Cronjobs are intended to run at least once daily, so given the time since the last successful run, I can alert (visually, on my dashboard) on no successful runs within 24-ish hours. That's exactly what I want!
+
+### The Grafana Bits
+
+### Getting it in Pulumi
+
+## Final Words
