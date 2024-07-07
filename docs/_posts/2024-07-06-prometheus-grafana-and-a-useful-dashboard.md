@@ -24,7 +24,7 @@ In the case of the chime, it's fairly obvious - I don't hear the chime that day.
 
 In the case of the backups, I'd have to go check individual Github repos, or inelegantly review my jobs in [kubectl](https://kubernetes.io/docs/reference/kubectl/) or [k9s](https://k9scli.io).
 
-Instead, I'd like to look at a dashboard of all my Cronjobs and have the dashboard point out if anything failed to run.
+Instead, I'd like to look at a dashboard, hosted at a nice URL, of all my Cronjobs and have the dashboard point out if anything failed to run.
 
 ## What's the simplest approach?
 
@@ -56,7 +56,7 @@ I don't want accidental upgrades of these charts the next time I `pulumi up`. It
 
 Both charts required a little bit of customization to support mounting their Ingress URLs at subpaths. I want to navigate to `http://my-homelab/prometheus` and `http://my-homelab/grafana`. By default, both Prometheus and Grafana ingresses mount at `/`.
 
-I configured the Ingress in both Helm chart Values to rewrite URLs.
+I configured both Ingresses to rewrite URLs.
 
 - [Prometheus Values](https://github.com/mikepartelow/homeslice/blob/5f30888a2ff898a5ad43a425208bb2c715777ef9/pulumi/monitoring/prometheus.py#L33)
 - [Grafana Values](https://github.com/mikepartelow/homeslice/blob/5f30888a2ff898a5ad43a425208bb2c715777ef9/pulumi/monitoring/grafana.py#L31)
@@ -73,7 +73,7 @@ I configured the Ingress in both Helm chart Values to rewrite URLs.
 }
 ```
 
-I also configured both Prometheus and Grafana to recognize they were serving from a subpath - something I was not able to cleanly configure for other apps that weren't built to be cloud-native[^1].
+I also configured both Prometheus and Grafana to recognize they were serving from a subpath. I recently set up an application that lacks this configurability[^1], and so couldn't mount it cleanly under a subfolder.
 
 - [Prometheus](https://github.com/mikepartelow/homeslice/blob/5f30888a2ff898a5ad43a425208bb2c715777ef9/pulumi/monitoring/prometheus.py#L30)
 - [Grafana](https://github.com/mikepartelow/homeslice/blob/5f30888a2ff898a5ad43a425208bb2c715777ef9/pulumi/monitoring/grafana.py#L78)
@@ -82,7 +82,7 @@ I also configured both Prometheus and Grafana to recognize they were serving fro
 
 Grafana needs to know where to find Prometheus. I expected I could use a Kubernetes [internal DNS name](https://kubernetes.io/docs/concepts/services-networking/dns-pod-service/) as I do [elsewhere in my cluster](https://github.com/mikepartelow/homeslice/blob/main/pulumi/Pulumi.prod.yaml#L17). But for reasons unknown (I suspect some configuration issue in the Grafana pods), that didn't work. Using a [non-FQDN](https://github.com/mikepartelow/homeslice/blob/5f30888a2ff898a5ad43a425208bb2c715777ef9/pulumi/Pulumi.prod.yaml#L45) worked.
 
-I suspect that using the Operator or `kube-prometheus-stack` would have sidestepped this issue for me, but it's more of a mystery than a blocker. I can loop back and figure it out later, and proceed now to building dashboards, the ultimate, practical point of this exercise.
+Using the Operator or `kube-prometheus-stack` probably would have sidestepped this issue for me, but it's more of a mystery than a blocker. I can loop back and figure it out later, and proceed now to building dashboards, which is the actual, practical point of this exercise.
 
 ### Rolling it out
 
@@ -108,7 +108,7 @@ time() - max(kube_job_status_succeeded{namespace=\"homeslice\",job_name=~\"$cron
 
 Cronjob names are parameterized as `$cronjob` so that I can use one query for all the Cronjobs in my `homeslice` namespace. I take the current time, subtract from it the time of the most recent successful job (which is not exactly straightforward to identify). That yields the time since the last successful run.
 
-As it happens, all of my Cronjobs are intended to run at least once daily, so given the time since the last successful run, I can alert (visually, on my dashboard) on no successful runs within 24-ish hours.
+As it happens, all of my Cronjobs are intended to run at least once daily, so given the time since the last successful run, I can indicate on my dashboard that no jobs have succeeded within 24-ish hours.
 
 That should suffice to answer my question of, "are my Cronjobs healthy?"
 
