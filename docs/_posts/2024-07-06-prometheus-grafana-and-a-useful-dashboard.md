@@ -38,7 +38,7 @@ I believe this choice gave me the best balance of simplicity, ease of maintenanc
 
 ## Pulumi
 
-My IaC platform is Pulumi. Pulumi offers two ways to install Helm charts: a [Chart](https://www.pulumi.com/registry/packages/kubernetes/api-docs/helm/v4/chart/) Resource, or a [Release](https://www.pulumi.com/registry/packages/kubernetes/api-docs/helm/v3/release/) Resource.
+My [IaC](https://en.wikipedia.org/wiki/Infrastructure_as_code) platform for this project is [Pulumi](https://www.pulumi.com/). Pulumi offers two ways to install Helm charts: a [Chart](https://www.pulumi.com/registry/packages/kubernetes/api-docs/helm/v4/chart/) Resource, or a [Release](https://www.pulumi.com/registry/packages/kubernetes/api-docs/helm/v3/release/) Resource.
 
 I used Pulumi's handy [guide](https://www.pulumi.com/registry/packages/kubernetes/how-to-guides/choosing-the-right-helm-resource-for-your-use-case/) and chose a `Release`, since I fall under their very first use case: *Fire-and-forget*.
 
@@ -112,6 +112,85 @@ It just so happens that all of my Cronjobs are intended to run at least once dai
 
 ### The Grafana Bits
 
-### Getting it in Pulumi
+I want my dashboards to be managed as IaC. Lucky for me, Grafana dashboards can be specified right in the [Helm values](https://github.com/grafana/helm-charts/blob/c8f3aaa4a71b7e1eb0add6b8ebb87dba5a2a0702/charts/grafana/values.yaml#L745). Even better, we can build them in Grafana's nice GUI then export them to the JSON format expected by the Helm chart.
 
-## Final Words
+Specifying the Dashboards in my Pulumi repo has many advantages. For example, it's easier to share the dashboards, they're versioned (by git), and if I mess them up manually, they're easily restored.
+
+Here's a portion of the finished dashboard:
+
+![prometheus](/assets/img/dashboard.png)
+
+We can see, immediately, at a glance, that there's something wrong with `chime-every-day-192-168-1-161-zed` - it hasn't run in a very long time. The wrongness is indicated both by the huge (meaningless) number and by the color red.
+
+There are three main components.
+
+#### The cronjob selector 
+
+> At the top, `cronjob: [All]`
+
+To set that up, `Dashboard Settings > Variables > New Variable`, and `Query` the `cronjob` label of the `kube_cronjob_info` metric. Enable `Multi-value` and `Include All option`. Name the variable `cronjob`.
+
+#### The `Schedule` panel
+
+Who knew you could get something like a Cronjob schedule from a metric? Well, now you and I know!
+
+We use a `Stat` visualization to show a single "statistic". We use a `Last*` `Calculation` on the `Field` "schedule". The `Query Format` is `Table`, and the query itself looks like this:
+
+```promql
+topk(1,kube_cronjob_info{cronjob="$cronjob",namespace="homeslice"})
+```
+
+[topk](https://prometheus.io/docs/prometheus/latest/querying/operators/#aggregation-operators) gets the "largest" `k` metrics. We set `k = 1` to get just one schedule.
+
+There's no meaningful Thresholds here, the schedule just is, it can never be out of bounds.
+
+#### The `Time Since Successful Run` panel
+
+Here's where I used [the PromQL Query](#the-promql-query) from above. Set the format to `table`, use a `Stat` visualization, change the Standard Options Unit to `duration hh:mm:ss`. Set the red Threshold to `90000`, which is about 25 hours - after which my Cronjob is definitely overdue.
+
+Between these two panels I have all I need to see, at a glance, if there's a problem with my scheduled tasks.
+
+#### Making the JSON
+
+Once the dashboard looks nice enough, it's time to export it to JSON so we can manage it with IaC. `Dashboard Settings > Save Dashboard > Save JSON to file` and [drop it into the Pulumi repo](https://github.com/mikepartelow/homeslice/blob/main/pulumi/monitoring/dashboards/cronjobs.json).
+
+### Finishing up the IaC
+
+Wouldn't it be cool if I could just drop any number of Grafana dashboard JSONs into my repo and have a single `pulumi up` deploy them all? Yes, that would be cool! In fact, it's also quite easy!
+
+I didn't actually implement this. Instead, I wrote the solution for just a single JSON file, because:
+
+- That's what I have right now
+- So my code is only as complex as needs to be, no more
+
+But all it needs is a `for` loop or two, then the dream can become reality.
+
+First, [read the file into a variable](https://github.com/mikepartelow/homeslice/blob/5f30888a2ff898a5ad43a425208bb2c715777ef9/pulumi/monitoring/grafana.py#L15).
+
+```python
+    with open("monitoring/dashboards/cronjobs.json", encoding="utf-8") as f:
+        cronjobs_json = f.read()
+```
+
+Then, [use it in the Grafana Helm values](https://github.com/mikepartelow/homeslice/blob/5f30888a2ff898a5ad43a425208bb2c715777ef9/pulumi/monitoring/grafana.py#L57).
+
+
+```python
+                "dashboards": {
+                    "homeslice": {
+                        "cronjobs": {
+                            "json": cronjobs_json,
+                        },
+                    },
+                },
+```
+
+For this to work we also need to set up [dashboardProviders](https://github.com/mikepartelow/homeslice/blob/5f30888a2ff898a5ad43a425208bb2c715777ef9/pulumi/monitoring/grafana.py#L40). The provider `name` and `path` must match the `dashboards` key we used, in this case, `homeslice`. 
+
+## Final Thoughts
+
+This little project went well. The infrastructure work is basically done. I need only a few extra minutes of work on the IaC to deploy multiple dashboards, and any additional time I can spend productively on making dashboards or instrumenting my application code to export metrics.
+
+The minimalist first dashboard already has enough info to point me towards a fixable problem. 
+
+I do have other things I'd like to monitor, either via `kube-state-metrics` or by instrumenting my app code. I'd also like to get a low-priority alert, like an email, if my backups fail - a job for `alertmanager`. This project lays groundwork for lots of future play and expansion!
