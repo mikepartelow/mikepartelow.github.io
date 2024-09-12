@@ -1,7 +1,7 @@
 ---
 layout: default
 title: "My lightswitch crashed so I migrated it to a three node High-Avalaibility Kubernetes cluster"
-date: "2024/09/13"
+date: "2024/09/12"
 ---
 
 ## Background
