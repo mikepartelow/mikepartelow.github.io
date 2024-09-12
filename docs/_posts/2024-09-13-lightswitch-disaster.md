@@ -1,6 +1,6 @@
 ---
 layout: default
-title: "My lightswitch crashed so I added two nodes to my single node Kubernetes cluster"
+title: "My lightswitch crashed so I migrated it to a three node High-Avalaibility Kubernetes cluster"
 date: "2024/09/13"
 ---
 
@@ -116,10 +116,16 @@ I also learned about the brilliant [multipass](http://multipass.run), and can us
 
 The way to deal with setbacks is to come back stronger than before. That's exactly what I did here. Now I have:
 
-- [Automated network controllers backups](https://github.com/mikepartelow/homeslice/blob/main/pulumi/unifi/ifi.py).
+- [Automated network controllers backups](https://github.com/mikepartelow/homeslice/blob/main/pulumi/unifi/unifi.py).
 s- [Ansible IaC](https://github.com/mikepartelow/homeslice-ansible) to rapidly provision new nodes and new network controller hosts.
 - 3 nodes in my k8s cluster, which MIGHT be enough to control my lightswitch. For now.
 - Pulumi code that I know for sure can restore a cluster from scratch!
+
+## Bonus Declarativeness
+
+I also added [some Pulumi code](https://github.com/mikepartelow/homeslice/pull/54/files#diff-afb5f69b4e0592d8712bd0e827539b32ec6ee32d1092515e75bd050e97640719R63) to [populate the chime PV](https://github.com/mikepartelow/homeslice/tree/main/apps/chime/media) with the mp3 it needs to serve up.
+
+Given the self-imposed constraints (the mp3 resides on my hard drive, is not available for GitHub image builds, and so forth), it was surprisingly challenging to come up with a declarative(-ish) way to get it done. Even without those constraints, the Kubernetes model makes it tricky to declare a pre-populated PV.
 
 ## Still to do
 
@@ -129,10 +135,14 @@ I'd also like to eliminate the few remaining manual steps, like Homebridge backu
 
 Monitoring may have been useful here. I may have noticed a decline in write speeds or an increase in write errors. But honestly, I don't want 3AM alerts from my lightswitch. And even if I had gotten some advance notice of the failure, I still would have had to run a DR playbook - and now I have a good one!
 
-## Wrapping up: the importance of colleagues
+## Bottom line: The mindset
 
-A lot of this is similar to what I do at my day job, although the specific tech, the scale, and the levels of abstraction (and absurdity) differ.
+This episode (dare I say "incident") reveals a mindset: *when problems strike, mitigate them, then ensure they never happen again*.
 
-The important thing here is the mindset: *when problems strike, mitigate them, then ensure they never happen again*.
+I could have let this go - after all, I did recover from the SSD crash. But developing a thorough DR plan was a worthwhile exercise, in the sense that fun is worthwhile.
 
-That's been my ideal forever, but there is no substitute for surrounding yourself with like-minded people who inspire you to fully live up to your ideals, even (especially) when you don't truly need to.
+There's overlap and echoes here with my day job, though the clusters at my day job are a lot bigger than 3 nodes.  But Yoda taught us not to judge things by their size. 
+
+Anyone can set up a one node - or with tools like multipass, an N-node - Kubernetes cluster and learn everything they need to administer and deploy apps to a 1000 node cluster.
+
+Likewise, a 1-3 node cluster can be just as much fun as a 1000 node cluster, with the right mindset!
