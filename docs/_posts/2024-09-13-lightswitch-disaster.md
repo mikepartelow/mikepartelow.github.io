@@ -97,7 +97,7 @@ I tested it out on clusters of [multipass](https://multipass.run) VMs, then ran 
 
 When my cluster had just one node, I used the [hostpath-storage](https://microk8s.io/docs/addon-hostpath-storage) plugin. With multiple nodes, that *could* work, with a lot of headache to ensure stateful pods get scheduled on the node hosting their storage. 
 
-I decided to postpone multi-node and focus on perfecting my Ansible playbook and my backup jobs. Later I returned to the problem, and learned that [OpenEBS](https://microk8s.io/docs/addon-openebs) is essentially a drop-in replacement for `hostpath-storage` (in my setup), and now I have everything I wanted: a working [Ansible playbook](https://github.com/mikepartelow/ansible), [automated network controller backups](https://github.com/mikepartelow/homeslice/tree/main/apps/backup-unifi), and a multi-node microk8s cluster in [HA mode](https://microk8s.io/docs/high-availability).
+I decided to postpone multi-node and focus on perfecting my Ansible playbook and my backup jobs. Later I returned to the problem, and learned that [OpenEBS](https://microk8s.io/docs/addon-openebs) is essentially a drop-in replacement for `hostpath-storage` (in my setup), and now I have everything I wanted: working [Ansible playbooks](https://github.com/mikepartelow/homeslice-ansible), [automated network controller backups](https://github.com/mikepartelow/homeslice/tree/main/apps/backup-unifi), and a multi-node microk8s cluster in [HA mode](https://microk8s.io/docs/high-availability).
 
 Along the way to getting working network controller backups, I practiced [scheduling pods on specific nodes](https://github.com/mikepartelow/homeslice/blob/f56ed43fae7cc020c36aa38b44aeb06c1a0d2e64/pulumi/Pulumi.prod.yaml#L85). The backup pod [mounts the network controller's local backup directory into the pod](https://github.com/mikepartelow/homeslice/blob/f56ed43fae7cc020c36aa38b44aeb06c1a0d2e64/pulumi/unifi/unifi.py#L56), so the pod [has to run on the node](https://github.com/mikepartelow/homeslice/blob/f56ed43fae7cc020c36aa38b44aeb06c1a0d2e64/pulumi/unifi/unifi.py#L76) that hosts the network controller. 
 
@@ -116,8 +116,8 @@ I also learned about the brilliant [multipass](http://multipass.run), and can us
 
 The way to deal with setbacks is to come back stronger than before. That's exactly what I did here. Now I have:
 
-- [Automated network controllers backups](https://github.com/mikepartelow/homeslice/blob/main/pulumi/unifi/unifi.py).
-- [Ansible IaC](https://github.com/mikepartelow/ansible) to rapidly provision new nodes and new network controller hosts.
+- [Automated network controllers backups](https://github.com/mikepartelow/homeslice/blob/main/pulumi/unifi/ifi.py).
+s- [Ansible IaC](https://github.com/mikepartelow/homeslice-ansible) to rapidly provision new nodes and new network controller hosts.
 - 3 nodes in my k8s cluster, which MIGHT be enough to control my lightswitch. For now.
 - Pulumi code that I know for sure can restore a cluster from scratch!
 
