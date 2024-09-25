@@ -82,11 +82,13 @@ Along the way, I discovered a couple of things. But before I talk about those, I
 
 ## Hooking it Up to Siri
 
-FIXME  
-FIXME  
-FIXME  
+The point of this excercise is voice control of my application. Apple's Siri architecture makes that easy. In fact, unlike (for example) Alexa, there is 0 configuration of the voice assistant required. Once the custom device shows up in Apple's [Home App](https://www.apple.com/home-app/), the work is done - Siri will automatically pick it up and interact with it.
 
----
+The easiest way to get my app to show up in the Home App was to get it into [HomeBridge](https://homebridge.io). The easiest way to do **that**, after minimal research (because this part can easily be swapped out, but the other moving parts are essentially or completely fixed), is to use the [homebridge-http Plugin](https://github.com/rudders/homebridge-http) to send HTTP POSTs to my `sonos.py` web service.
+
+[![](https://mermaid.ink/img/pako:eNp9kUtvgkAQgP_KZC9epN45NFGxNWlaSKAnMGZkx2XTZZfsIw0R_3sRqUfnNI_vm8PMhdWGE4vZWZnfukHroUgqDWOsy29HNobFnnrIpZXgg9VgNLzj6YTCGLU4QBS9Di05h4JiEP8DSL8G2JR709KH9If7ws0zeDvBGyu5oJnfPuOTshn508RHjfcdZCoIqWc3mdx9UWSQpXkBq05hr6TzbvXYszJ6gF3pjDbupetnczeZebrO4OYcg5UOvMX65yi5G-CtzG_CTLMla8m2KPl4w8utVzHfUEsVi8eU0xmD8hWr9HVEMXiT97pmsbeBlsyaIBoWn1G5sQodR0-JRGGxfXSJS2_s5_1L07Oufxp7kjI?type=png)](https://mermaid.live/edit#pako:eNp9kUtvgkAQgP_KZC9epN45NFGxNWlaSKAnMGZkx2XTZZfsIw0R_3sRqUfnNI_vm8PMhdWGE4vZWZnfukHroUgqDWOsy29HNobFnnrIpZXgg9VgNLzj6YTCGLU4QBS9Di05h4JiEP8DSL8G2JR709KH9If7ws0zeDvBGyu5oJnfPuOTshn508RHjfcdZCoIqWc3mdx9UWSQpXkBq05hr6TzbvXYszJ6gF3pjDbupetnczeZebrO4OYcg5UOvMX65yi5G-CtzG_CTLMla8m2KPl4w8utVzHfUEsVi8eU0xmD8hWr9HVEMXiT97pmsbeBlsyaIBoWn1G5sQodR0-JRGGxfXSJS2_s5_1L07Oufxp7kjI)
+
+As a bonus, the Home app offers me MacOS, iOS, and watchOS widgets to control my "switch", all without any effort from me. 
 
 ## Challenges Encountered 
 
@@ -126,19 +128,48 @@ if playlist := playlists.get(source.id, None):
 ...
 ```
 
-### Class Factory
+### Class Factory for BaseHTTPRequestHandler
 
-FIXME: make_sonos_server
+When constructing a Python stdlib HTTP server, [we pass a RequestHandlerClass](https://docs.python.org/3/library/http.server.html#http.server.HTTPServer).
+
+For my application, the server needs some variables to do its job, like a list of Sonoses and a list of playlists. I could use global variables, but instead, I use a factory, `make_sonos_server`, to construct a `BaseHTTPRequestHandler` [subclass](https://github.com/mikepartelow/homeslice/blob/a6197429a8007dcc72da1bcef5c339711d318552/apps/sonos/lib/server.py#L15) with the variables baked in.
 
 ```python
-FIXME
+def make_sonos_server(
+    coordinator: SoCo,
+    zones: Sequence[SoCo],
+    volume: int,
+    playlists: Mapping[str, Playlist],
+    stations: Mapping[str, Station],
+) -> BaseHTTPRequestHandler:
+    """Construct and return a BaseHTTPRequestHandler subclass that implements the magic."""
+
+    last_on = datetime.datetime.now() - datetime.timedelta(days=1)
+
+    def prepare_coordinator():
+        coordinator.unjoin()
+        coordinator.volume = volume
+    
+    # and so on...
+
+# later, use it 
+
+sonos_server = make_sonos_server(
+    coordinator=SoCo(coordinator),
+    zones=[SoCo(ip) for ip in zones],
+    volume=VOLUME,
+    playlists=playlists,
+    stations=stations,
+)
+
+server = HTTPServer((LISTEN_HOST, LISTEN_PORT), sonos_server)
 ```
 
 ### Device Discovery
 
-[SoCo](FIXME) relies heavily on device discovery, that is, discovering Sonos player IP addresses by broadcasting "show yourself!!!" messages on the network and waiting for players to self-report. The assumption that this will work is baked heavily into the SoCo library, but it doesn't work well from within Kubernetes. [It can be made to work](https://serverfault.com/a/948778), probably, but a simpler approach is to simply obtain player IPs [FIXME: footnote: in my case, I configure my DHCP server to assign fixed IPs to my players, so hardcoding works fine] and pass them as inputs to the application.
+SoCo relies heavily on device discovery, that is, discovering Sonos player IP addresses by broadcasting "show yourself!!!" messages on the network and waiting for players to self-report. The assumption that this will work is [baked heavily into the SoCo library](https://github.com/SoCo/SoCo/blob/c41a10f74650d734170a465ceb5657ff5668d12b/soco/music_services/music_service.py#L94), but it doesn't work well from within Kubernetes. [It can be made to work](https://serverfault.com/a/948778), probably, but a simpler approach is to simply obtain player IPs (it helps if they are, as in my case, fixed IP addressses) and pass them as inputs to the application.
 
-I previously ran into this problem when writing [chime](FIXME), where resolving it would have been even more difficult, since in that case, the application is run as a [Cronjob](FIXME), making NodePort assignment more difficult.
+I previously ran into this problem when writing chime, where resolving it would have been even more difficult, since in that case, the application is run as a Cronjob, making NodePort assignment more difficult.
 
 ### Gabbagool
 
@@ -168,3 +199,5 @@ This incoherency is the price I pay for shoehorning something that is definitely
 - Then optimize the pain points away.
 - Accept acceptable incoherence to ship quickly.
 - Use a decoupled, modular design to enable resolution of incoherence, later, if desired.
+- Use frameworks, like HomeKit, that give you lots of bonus UX for free.
+- Most of all, have fun building software for yourself!
