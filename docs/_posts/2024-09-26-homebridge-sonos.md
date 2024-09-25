@@ -25,7 +25,7 @@ As a computer programmer with a [home Kubernetes deployment platform]({% post_ur
 1. To play my personal Tidal playlist on my Sonos.
 2. To play ad-free SomaFM on my Sonos.
 3. To do the above through voice commands.
-4. And by voice commands, I mean "Siri"
+4. By voice commands, I mean "Siri"
 
 ## Tools in hand
 
@@ -57,7 +57,7 @@ This gives the best user experience. Music plays immediately. Next, music become
 
 I ended up getting to read some of the SoCo source code to understand why track titles were not showing up on the Sonos apps when I called [add_uri_to_queue()](https://github.com/SoCo/SoCo/blob/c41a10f74650d734170a465ceb5657ff5668d12b/soco/core.py#L2258) to otherwise successfully enqueue playable tracks. At first glance, it seems obvious: `title=""`. But it turns out, that's actually fine - that field is ignored. So where does Sonos  get the track title?
 
-I used [Wireshark](https://www.wireshark.org) to inspect the [SOAP](https://www.w3schools.com/XML/xml_soap.asp) calls made by the [official Sonos app](https://support.sonos.com/en-us/downloads), and discovered the true secret sauce is setting [DidlObject.desc](https://github.com/SoCo/SoCo/blob/c41a10f74650d734170a465ceb5657ff5668d12b/soco/data_structures.py#L518C14-L518C18), which [add_uir_to_queue() does not do](https://github.com/SoCo/SoCo/blob/c41a10f74650d734170a465ceb5657ff5668d12b/soco/core.py#L2257).
+I used [Wireshark](https://www.wireshark.org) to inspect the [SOAP](https://www.w3schools.com/XML/xml_soap.asp) calls made by the [official Sonos app](https://support.sonos.com/en-us/downloads), and discovered the true secret sauce is setting [DidlObject.desc](https://github.com/SoCo/SoCo/blob/c41a10f74650d734170a465ceb5657ff5668d12b/soco/data_structures.py#L518C14-L518C18), which [add_uid_to_queue() does not do](https://github.com/SoCo/SoCo/blob/c41a10f74650d734170a465ceb5657ff5668d12b/soco/core.py#L2257).
 
 That knowledge in hand, I [rolled my own add_uri_to_queue()](https://github.com/mikepartelow/homeslice/blob/a6197429a8007dcc72da1bcef5c339711d318552/apps/sonos/lib/playlist.py#L37), and now my track names show up as desired.
 
@@ -192,6 +192,14 @@ There's one problem here. I've crammed my playlist into a "switch", but it's not
 Likewise, there is no way to turn it "off". What's "off" mean here? Pause playback? What if I manually changed the groups or the playing music, what's "off" mean there?
 
 This incoherency is the price I pay for shoehorning something that is definitely not a "switch" into a switch-like interface. That said, I got 90% of what I want, after a few hours of work, and I can live with the incoherency. If it bothers me too much, I can look for a different HomeBridge plugin, or simply define what "status" and "off" mean to me.
+
+## Future Improvements
+
+I may decide, for performance and fun, to rewrite the Python portion in Go or Rust, eliminating the dependency on the SoCo library in favor of just sending SOAP XMLs over the network. I already do something similar for my homeslice Wemo integration. 
+
+I can also define "off" and "status" semantics for a more coherent HomeKit integration.
+
+Otherwise, this thing is already pretty complete!
 
 ## Key Points
 
