@@ -26,7 +26,7 @@ Using [Wireshark](https://www.wireshark.org) (or [tcpdump](https://www.tcpdump.o
 
 ## Wiresharking It
 
-First, I ungrouped my Sonos speakers to simplify my snooping landscape[^4]. Next, I picked one speaker to send commands to, and then obtained its IP address from my router.
+First, I ungrouped my Sonos speakers to simplify my snooping landscape[^4]. Next, I picked one speaker to send commands to, and then obtained its IP address from the Sonos controller app.
 
 That's all I needed to get started. I set up a filter in Wireshark[^5], making an educated guess[^6] that I was looking for HTTP traffic.
 
@@ -37,7 +37,7 @@ Then I used the Sonos Controller app to send the playlist to my speaker. Success
 ![wireshark filter](/assets/img/wireshark1.png). 
 
 
-Each one has an [XML](https://en.wikipedia.org/wiki/XML) payload, and one of them is going to a different URL than all the rest. That seems like a good place to start. I looked at the XML payload for the request POSTing to `/MediaServer/ContentDirectory/Control`.
+Each one has an [XML](https://en.wikipedia.org/wiki/XML) payload, and one of them is going to a different path than all the rest. That seems like a good place to start. I looked at the XML payload for the request POSTing to `/MediaServer/ContentDirectory/Control`.
 
 ```xml
     <s:Envelope
@@ -68,7 +68,7 @@ Each one has an [XML](https://en.wikipedia.org/wiki/XML) payload, and one of the
         </s:Envelope>
 ```
 
-Oh, well... that clearly isn't enqueuing my playlist. So much for lucky guesses. So I started at the top with the first request to `/MediaRenderer/AVTransport/Control`. The first request clears the existing queue, the second request loads my playlist, the third seeks to the beginning of the playlist, and the fourth initiates playback. More stuff happens after that, but that seems like enough to sink my teeth[^7] into right now.
+Oh, well... that clearly isn't enqueuing my playlist. So much for lucky guesses. Starting from the top with the first request to `/MediaRenderer/AVTransport/Control`, that request clears the existing queue, the second request loads my playlist, the third seeks to the beginning of the playlist, and the fourth initiates playback. More stuff happens after that, but that seems like enough to sink my teeth[^7] into right now.
 
 Here's the XML payload for loading the playlist:
 
@@ -128,7 +128,7 @@ Here's the XML payload for initiating playback. To keep things extremely simple,
 
 ## Musical Curls
 
-Now that I've got the XML payloads, I should be able to use [curl](https://curl.se/docs/manpage.html)[^8] (or [Postman](https://www.postman.com/downloads/), or `wget`, etc) to play my Apple Music playlist on my Sonos.
+Now that I've got the XML payloads, I should be able to use [curl](https://curl.se/docs/manpage.html) (or [Postman](https://www.postman.com/downloads/), or `wget`, etc) to play my Apple Music playlist on my Sonos.
 
 Wireshark also showed a bunch of HTTP headers being sent with each `POST`, but I know from experience that I only need the `SOAPACTION` header.
 
@@ -186,21 +186,80 @@ I ran the "play playlist" command, and the music played! My guess was correct: I
 % curl -X post -d @./play.xml http://192.168.1.337:1400/MediaRenderer/AVTransport/Control -v -H 'SOAPACTION: "urn:schemas-upnp-org:service:AVTransport:1#Play"'
 ```
 
-[^8]: The greatest music-related thing ever to come out of Sweden.
+## Can I play any playlist, not just this one?
 
-## What's next?
+There's an obvious identifier (ID) in the `AddURIToQueue` XML payload: `libraryplaylist%3ap.PkxVBLKhJ6D0DB`. It appears twice. `%3a` is a urlencoded `:`, so that's `libraryplaylist:p.PkxVBLKhJ6D0DB`. 
 
+Ideally I'd template the XML so I can plug in any playlist ID, then add that functionality to my existing [go-sonos](https://github.com/mikepartelow/homeslice/tree/main/apps/gosonos) code. But where do I get playlist IDs?
 
+If I `Share` the playlist from the Apple Music app, I end up with a completely different ID, embedded in a Share Link like `https://music.apple.com/us/playlist/lost-due-to-incompetence/pl.u-38oWX9ECvqDrDL`.
 
-## Why not just use someone else's library?
+Dropping variants of `pl.u-38oWX9ECvqDrDL` into the XML payload yields a HTTP 500 error.
 
-FIXME
-link to "program for fun" blog post? read it first
+Someone else has already figured out [how to use Share Links](https://github.com/SoCo/SoCo/blob/dd300be3ab63f6291e880de606f93fd52905c391/soco/plugins/sharelink.py#L216). What if I try [their approach](https://github.com/SoCo/SoCo/pull/886)?
 
-## Why not use a SOAP library instead of sending 
+```shell
+% uvx --with soco python
+>>> from soco import SoCo
+>>> my_zone = SoCo('192.168.1.337')
+>>> from soco.plugins.sharelink import ShareLinkPlugin
+>>> sharelink=ShareLinkPlugin(my_zone)
+>>> sharelink.add_share_link_to_queue("https://music.apple.com/us/playlist/lost-due-to-incompetence/pl.u-38oWX9ECvqDrDL")
+1
+```
+
+Sure enough, that worked. Wireshark shows a new kind of XML payload, different from the ones I captured from the Sonos Controller app:
+
+```xml
+<?xml version="1.0"?>
+<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"
+    s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
+    <s:Body>
+        <u:AddURIToQueue xmlns:u="urn:schemas-upnp-org:service:AVTransport:1">
+            <InstanceID>0</InstanceID>
+            <EnqueuedURI>x-rincon-cpcontainer:1006206cplaylist%3apl.u-38oWX9ECvqDrDL</EnqueuedURI>
+            <EnqueuedURIMetaData>
+                &lt;DIDL-Lite xmlns:dc=&quot;http://purl.org/dc/elements/1.1/&quot;
+                xmlns:upnp=&quot;urn:schemas-upnp-org:metadata-1-0/upnp/&quot;
+                xmlns:r=&quot;urn:schemas-rinconnetworks-com:metadata-1-0/&quot;
+                xmlns=&quot;urn:schemas-upnp-org:metadata-1-0/DIDL-Lite/&quot;&gt;&lt;item
+                id=&quot;1006206cplaylist%3apl.u-38oWX9ECvqDrDL&quot; parentID=&quot;-1&quot;
+                restricted=&quot;true&quot;&gt;&lt;dc:title&gt;&lt;/dc:title&gt;&lt;upnp:class&gt;object.container.playlistContainer&lt;/upnp:class&gt;&lt;desc
+                id=&quot;cdudn&quot;
+                nameSpace=&quot;urn:schemas-rinconnetworks-com:metadata-1-0/&quot;&gt;SA_RINCON52231_X_#Svc52231-0-Token&lt;/desc&gt;&lt;/item&gt;&lt;/DIDL-Lite&gt;</EnqueuedURIMetaData>
+            <DesiredFirstTrackNumberEnqueued>0</DesiredFirstTrackNumberEnqueued>
+            <EnqueueAsNext>0</EnqueueAsNext>
+        </u:AddURIToQueue>
+    </s:Body>
+</s:Envelope>
+```
+
+This payload contains the share link ID `pl.u-38oWX9ECvqDrDL`.
+
+What if I replace that with a different playlist share link ID, like the one in this share link: https://music.apple.com/us/playlist/the-bright-side/pl.u-DdANrvPujgVDVq ?
+
+It worked! So now I know the XML snippet I can use in my own code, with the ID portion templated, to enqueue Apple Music playlists to my Sonos system, using easily obtainable share links from the Apple Music app itself. Hooray!
+
+## Why not just use someone else's Sonos library? For instance, the one you just used in the previous section?
+
+I like to [write software for myself]({% post_url 2024-04-07-write-software-for-yourself %}). It's fun. 
+
+Plus, I got to practice my Wiresharking, and I learned a bit more about how Sonos works than if I'd just used someone else's library.
+
+There's a limit, like when I started setting up an Android emulator to reverse engineer my coffee maker's new authentication flow. Software engineering is a discipline of tradeoffs, and at some point, the "fun" is no longer worth the time and effort traded off. Sometimes it's better to have some faith in your fellow tinkerers - *someone* is hacking away on the other side of the tradeoff.
+
+This Sonos sniffing project doesn't come anywhere near that limit, it's pure fun!
+
+## Why not use a SOAP library instead of sending random XML snippets?
 
 Isn't that just what a SOAP library does?
 
 Okay, not quite. But why do I need the extra complexity?
 
-I'm keeping it simple here. It's pretty easy to see if my approach works or not, and if it does, what benefit do I get by piling on additional libraries or data transformations?
+## Why not just RTFM?
+
+Most of this is [very well documented](https://docs.sonos.com/docs/soap-requests-and-responses). 
+
+See above re: "fun".
+
+---
